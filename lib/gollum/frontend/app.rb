@@ -103,6 +103,7 @@ module Precious
     end
 
     post '/user_password' do
+      raise [session[:user], params[:name]].inspect
       if session[:user] == params[:name]
         safename = params[:name].gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
         REDIS.set("gollum:user:#{ safename }:password", BCrypt::Password.create(params[:password]))

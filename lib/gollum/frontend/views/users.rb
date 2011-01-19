@@ -6,7 +6,7 @@ module Precious
           if user[:self]
             user[:passwordfield] = %{
                 <form action='/user_password' class='password' method='POST'>
-                  <input type='HIDDEN' name='name' value='{{{name}}}' />
+                  <input type='HIDDEN' name='name' value='#{ user[:name] }' />
                   <input name='password' type='PASSWORD' />
                 </form>
 }
