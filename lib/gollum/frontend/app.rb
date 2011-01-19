@@ -6,11 +6,18 @@ require 'mustache/sinatra'
 require 'gollum/frontend/views/layout'
 require 'gollum/frontend/views/editable'
 
-module Precious
-  class App < Sinatra::Base
-    register Mustache::Sinatra
+require 'bcrypt'
+require 'redis'
 
-    dir = File.dirname(File.expand_path(__FILE__))
+module Precious
+  redis = Redis.new
+
+  STUB_PASSWORD = "$2a$10$qzMw/3DRyaola7edcx8JNuk2VAb7Ar2ACwxiTI4M5nzSHi7VMszzO"
+
+  class App < Sinatra::Base
+    register Mustache::Sinatra 
+
+    dir = File.dirname(File.expand_path(__FILE__))    
 
     # We want to serve public assets for now
 
@@ -44,12 +51,21 @@ module Precious
     end
 
     before do
-      if not session[:user] and request.path != "/login"
-        session[:preauth_path] = request.path
-        redirect "/login"
-      elsif session[:user] and (path = session.delete(:preauth_path))
-        redirect path
+      if not session[:user]
+        if request.path != "/login"
+          session[:preauth_path] = request.path
+          redirect "/login"
+        end      
+      else
+        if (path = session.delete(:preauth_path))
+          redirect path
+        end
       end
+    end
+
+    get '/logout' do 
+      session.delete :user
+      redirect "/"
     end
 
     get '/login' do
@@ -57,8 +73,14 @@ module Precious
     end
 
     post "/login" do
-      if params[:name] == "bob" and params[:password] == "bob"
-        redirect "/"
+      if params[:name] == "bob"
+        if BCrypt::Password.new(STUB_PASSWORD) == params[:password]
+          session[:user] = "bob"
+          redirect "/"
+        else
+          @message = "Login failed"
+          mustache :login
+        end
       end
     end
 
