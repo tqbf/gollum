@@ -10,7 +10,7 @@ require 'bcrypt'
 require 'redis'
 
 module Precious
-  redis = Redis.new
+  REDIS = Redis.new
 
   STUB_PASSWORD = "$2a$10$qzMw/3DRyaola7edcx8JNuk2VAb7Ar2ACwxiTI4M5nzSHi7VMszzO"
 
@@ -85,14 +85,15 @@ module Precious
     end
 
     get '/users' do
-      @users = redis.lrange("gollum:users", 0, -1).map do |name|
+      @users = REDIS.lrange("gollum:users", 0, -1).map do |name|
         safename = name.gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
         {
           :name => name,
-          :fullname => redis.get("gollum:user:#{ safename }:fullname"),
+          :fullname => REDIS.get("gollum:user:#{ safename }:fullname"),
           :self => session[:user] == name ? true : false
         }
       end
+      mustache :users
     end
 
     get '/edit/*' do

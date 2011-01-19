@@ -12,6 +12,7 @@ module Precious
           else
             user[:passwordfield] = "&nbsp;"
           end
+          user
         end
       end
     end
