@@ -54,7 +54,7 @@ module Precious
     before do
       if not session[:user]
         if request.path != "/login"
-          session[:preauth_path] = request.path
+          session[:preauth_path] ||= request.path
           redirect "/login"
         end
       else
