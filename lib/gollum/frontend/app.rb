@@ -45,7 +45,10 @@ module Precious
 
     before do
       if not session[:user] and request.path != "/login"
+        session[:preauth_path] = request.path
         redirect "/login"
+      elsif (path = session.delete(:preauth_path))
+        redirect path
       end
     end
 
@@ -54,7 +57,9 @@ module Precious
     end
 
     post "/login" do
-      "Hi, mom"
+      if params[:name] == "bob" and params[:password] == "bob"
+        redirect "/"
+      end
     end
 
     get '/edit/*' do
