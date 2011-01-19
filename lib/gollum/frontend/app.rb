@@ -16,6 +16,7 @@ module Precious
 
     set :public,    "#{dir}/public"
     set :static,    true
+    set :sessions,  true
 
     set :mustache, {
       # Tell mustache where the Views constant lives
@@ -42,8 +43,18 @@ module Precious
       show_page_or_file('Home')
     end
 
+    before do
+      if not session[:user] and request.path != "/login"
+        redirect "/login"
+      end
+    end
+
     get '/login' do
       mustache :login
+    end
+
+    post "/login" do
+      "Hi, mom"
     end
 
     get '/edit/*' do

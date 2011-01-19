@@ -693,8 +693,8 @@ Gem::Specification.new do |s|
     lib/gollum/frontend/templates/editor.mustache
     lib/gollum/frontend/templates/error.mustache
     lib/gollum/frontend/templates/history.mustache
-    lib/gollum/frontend/templates/login.mustache
     lib/gollum/frontend/templates/layout.mustache
+    lib/gollum/frontend/templates/login.mustache
     lib/gollum/frontend/templates/page.mustache
     lib/gollum/frontend/templates/search.mustache
     lib/gollum/frontend/templates/searchbar.mustache
@@ -704,8 +704,8 @@ Gem::Specification.new do |s|
     lib/gollum/frontend/views/editable.rb
     lib/gollum/frontend/views/error.rb
     lib/gollum/frontend/views/history.rb
-    lib/gollum/frontend/views/login.rb
     lib/gollum/frontend/views/layout.rb
+    lib/gollum/frontend/views/login.rb
     lib/gollum/frontend/views/page.rb
     lib/gollum/frontend/views/search.rb
     lib/gollum/git_access.rb
