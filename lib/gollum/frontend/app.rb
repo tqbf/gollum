@@ -85,7 +85,7 @@ module Precious
     end
 
     get '/users' do
-      @users = REDIS.smembers("gollum:users", 0, -1).map do |name|
+      @users = REDIS.smembers("gollum:users").map do |name|
         safename = name.gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
         {
           :name => name,
