@@ -708,6 +708,7 @@ Gem::Specification.new do |s|
     lib/gollum/frontend/views/login.rb
     lib/gollum/frontend/views/page.rb
     lib/gollum/frontend/views/search.rb
+    lib/gollum/frontend/views/users.rb
     lib/gollum/git_access.rb
     lib/gollum/markup.rb
     lib/gollum/page.rb

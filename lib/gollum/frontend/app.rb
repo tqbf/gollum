@@ -15,9 +15,9 @@ module Precious
   STUB_PASSWORD = "$2a$10$qzMw/3DRyaola7edcx8JNuk2VAb7Ar2ACwxiTI4M5nzSHi7VMszzO"
 
   class App < Sinatra::Base
-    register Mustache::Sinatra 
+    register Mustache::Sinatra
 
-    dir = File.dirname(File.expand_path(__FILE__))    
+    dir = File.dirname(File.expand_path(__FILE__))
 
     # We want to serve public assets for now
 
@@ -55,7 +55,7 @@ module Precious
         if request.path != "/login"
           session[:preauth_path] = request.path
           redirect "/login"
-        end      
+        end
       else
         if (path = session.delete(:preauth_path))
           redirect path
@@ -63,7 +63,7 @@ module Precious
       end
     end
 
-    get '/logout' do 
+    get '/logout' do
       session.delete :user
       redirect "/"
     end
@@ -81,6 +81,17 @@ module Precious
           @message = "Login failed"
           mustache :login
         end
+      end
+    end
+
+    get '/users' do
+      @users = redis.lrange("gollum:users", 0, -1).map do |name|
+        safename = name.gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
+        {
+          :name => name,
+          :fullname => redis.get("gollum:user:#{ safename }:fullname"),
+          :self => session[:user] == name ? true : false
+        }
       end
     end
 

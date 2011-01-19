@@ -1,0 +1,46 @@
+<div class='users' id='wiki-wrapper'>
+  <div id='head'>
+    <h1>Users</h1>
+  </div>
+  <div id='users'>
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            {{users}}
+            <tr>
+              <td>{{name}}</td>
+              <td>
+                <form action='/user_name' class='username' method='POST'>
+                  <input name='username' type='TEXT' value='{{fullname}}' />
+                </form>
+              </td>
+              <td>
+                {{{passwordfield}}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!--
+#wiki-wrapper.users
+  #head
+    %h1 Users
+  #users
+    %ul
+      %li 
+        %table
+          %tbody
+            %tr
+              %td Bob Roberts
+              %td 
+                %form.username{:action => "/user_name", :method => "POST"}
+                  %input{:type => "TEXT", :value => "Bob Roberts", :name => "username"}
+              %td 
+                %form.password{:action => "/user_password", :method => "POST"}
+                  %input{:type => "PASSWORD", :name => "password"}
+ -->
