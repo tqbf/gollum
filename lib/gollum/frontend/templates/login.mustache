@@ -1,0 +1,35 @@
+<div class='login' id='wiki-wrapper'>
+  <div id='head'>
+    <h1>Login</h1>
+  </div>
+  <div id='login'>
+    <form action='/login' method='POST'>
+      <label for='name'>Username</label>
+      <br />
+      <input name='name' type='TEXT' />
+      <br />
+      <label for='password'>Password</label>
+      <br />
+      <input name='password' type='PASSWORD' />
+      <br />
+      <input type='SUBMIT' value='log in' />
+    </form>
+  </div>
+</div>
+
+<! --
+#wiki-wrapper.login
+  #head
+    %h1 Login
+  #login
+    %form{:action => "/login", :method => "POST"}
+      %label{:for => "name"} Username
+      %br
+      %input{:type => "TEXT", :name => "name"}
+      %br
+      %label{:for => "password"} Password
+      %br
+      %input{:type => "PASSWORD", :name => "password"}
+      %br
+      %input{:type => "SUBMIT", :value => "log in"}
+ --> 
