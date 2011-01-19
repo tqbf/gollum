@@ -85,7 +85,7 @@ module Precious
     end
 
     get '/users' do
-      @users = REDIS.lrange("gollum:users", 0, -1).map do |name|
+      @users = REDIS.smembers("gollum:users", 0, -1).map do |name|
         safename = name.gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
         {
           :name => name,
@@ -103,13 +103,25 @@ module Precious
     end
 
     post '/user_password' do
-      raise [session[:user], params[:name]].inspect
       if session[:user] == params[:name]
         safename = params[:name].gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
         REDIS.set("gollum:user:#{ safename }:password", BCrypt::Password.create(params[:password]))
         redirect "/users"
       else
         @message = "Can't set password for other users."
+        mustache :error
+      end
+    end
+
+    post '/user_add' do
+      safename = params[:name].gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
+      if not REDIS.sismember("gollum:users", safename)
+        REDIS.sadd("gollum:users", safename)
+        REDIS.mset("gollum:user:#{ safename }:fullname", params[:fullname],
+                   "gollum:user:#{ safename }:password", BCrypt::Password.create(params[:password]))
+        redirect "/users"
+      else
+        @message = "User by that name already exists"
         mustache :error
       end
     end
