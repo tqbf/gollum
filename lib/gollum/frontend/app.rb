@@ -96,6 +96,23 @@ module Precious
       mustache :users
     end
 
+    post '/user_name' do
+      safename = params[:name].gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
+      REDIS.set("gollum:user:#{ safename }:fullname", params[:fullname])
+      redirect "/users"
+    end
+
+    post '/user_password' do
+      if session[:user] == params[:name]
+        safename = params[:name].gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
+        REDIS.set("gollum:user:#{ safename }:password", BCrypt::Password.create(params[:password]))
+        redirect "/users"
+      else
+        @message = "Can't set password for other users."
+        mustache :error
+      end
+    end
+
     get '/edit/*' do
       @name = params[:splat].first
       wiki = Gollum::Wiki.new(settings.gollum_path, settings.wiki_options)

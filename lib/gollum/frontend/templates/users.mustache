@@ -10,7 +10,8 @@
               <td>{{name}}</td>
               <td>
                 <form action='/user_name' class='username' method='POST'>
-                  <input name='username' type='TEXT' value='{{fullname}}' />
+		  <input type='HIDDEN' name='name' value='{{{name}}}' />
+                  <input name='fullname' type='TEXT' value='{{fullname}}' />
                 </form>
               </td>
               <td>
