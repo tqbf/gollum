@@ -12,7 +12,8 @@ require 'redis'
 module Precious
   REDIS = Redis.new
 
-  STUB_PASSWORD = "$2a$10$qzMw/3DRyaola7edcx8JNuk2VAb7Ar2ACwxiTI4M5nzSHi7VMszzO"
+  ADMIN_USER = "admin"
+  ADMIN_PASSWORD = "$2a$10$hcvQPvSd7BM2/w5KbZwYieJeMjGOJw/DGdZleaa2nmN2/USj2VABK"
 
   class App < Sinatra::Base
     register Mustache::Sinatra
@@ -73,14 +74,26 @@ module Precious
     end
 
     post "/login" do
-      if params[:name] == "bob"
-        if BCrypt::Password.new(STUB_PASSWORD) == params[:password]
-          session[:user] = "bob"
-          redirect "/"
-        else
-          @message = "Login failed"
-          mustache :login
+      if params[:name] == ADMIN_USER
+        if BCrypt::Password.new(ADMIN_PASSWORD) == params[:password]
+          session[:user] = "admin"
+          session[:fullname] = "Wiki Admin"
+          redirect = "/"
         end
+      else
+        safename = params[:name].gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
+        if (hash = REDIS.get("gollum:user:#{ safename }:password"))
+          if BCrypt::Password.new(hash) == params[:password]
+            session[:user] = safename
+            session[:fullname] = REDIS.get("gollum:user:#{ safename }:fullname")
+            redirect = "/"
+          end
+        end
+      end
+
+      if not session[:user]
+        @message = "Login failed"
+        mustache :login
       end
     end
 
