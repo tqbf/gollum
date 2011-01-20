@@ -296,7 +296,7 @@ module Precious
     end
 
     def commit_message
-      { :message => params[:message] }
+      { :message => params[:message], :name => session[:fullname] }
     end
   end
 end
