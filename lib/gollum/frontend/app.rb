@@ -109,6 +109,25 @@ module Precious
       mustache :users
     end
 
+    get '/upload' do
+      mustache :upload
+    end
+
+    post '/upload' do
+      safename = params[:name].gsub(/.*\/(.*?)$/) {|x| $1 }.gsub(/[^A-Za-z0-9\-\_\ \.]/, ".")
+      buf = params[:file][:tempfile].read
+      wiki = Gollum::Wiki.new(settings.gollum_path, settings.wiki_options)
+      committer = Gollum::Committer.new(wiki, :name => session[:fullname])
+      fullpath = ::File.join(*[wiki.page_file_dir, "/", safename].compact)
+      fullpath = fullpath[1..-1] if fullpath =~ /^\//
+      committer.index.add(fullpath, buf)
+      committer.after_commit do |index, sha|
+        wiki.repo.git.checkout({}, 'HEAD', '--', safename)
+      end
+      committer.commit
+      redirect "/"
+    end
+
     post '/user_name' do
       safename = params[:name].gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
       REDIS.set("gollum:user:#{ safename }:fullname", params[:fullname])
@@ -284,25 +303,6 @@ module Precious
         @name = name
         mustache :create
       end
-    end
-
-    get '/upload' do
-      mustache :upload
-    end
-
-    post '/upload' do
-      safename = params[:name].gsub(/.*\/(.*?)$/) {|x| $1 }.gsub(/[^A-Za-z0-9\-\_\ \.]/, ".")
-      buf = params[:file][:tempfile].read
-      wiki = Gollum::Wiki.new(settings.gollum_path, settings.wiki_options)
-      committer = Gollum::Committer.new(wiki, :name => session[:fullname])
-      fullpath = ::File.join(*[@wiki.page_file_dir, "/", safename].compact)
-      fullpath = fullpath[1..-1] if fullpath =~ /^\//
-      committer.index.add(fullpath, buf)
-      committer.after_commit do |index, sha|
-        wiki.repo.git.checkout({}, 'HEAD', '--', safename)
-      end
-      committer.commit
-      redirect "/"
     end
 
     def update_wiki_page(wiki, page, content, commit_message, name = nil, format = nil)
