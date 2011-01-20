@@ -54,7 +54,7 @@ module Precious
     before do
       if not session[:user]
         if request.path != "/login"
-          session[:preauth_path] = request.path
+          session[:preauth_path] = request.path if not request.path =~ /favico/
           redirect "/login"
         end
       else
@@ -78,7 +78,7 @@ module Precious
         if BCrypt::Password.new(ADMIN_PASSWORD) == params[:password]
           session[:user] = "admin"
           session[:fullname] = "Wiki Admin"
-          redirect = "/"
+          redirect "/"
         end
       else
         safename = params[:name].gsub(/[^A-Za-z0-9_-]/, ".")[0,100]
@@ -86,7 +86,7 @@ module Precious
           if BCrypt::Password.new(hash) == params[:password]
             session[:user] = safename
             session[:fullname] = REDIS.get("gollum:user:#{ safename }:fullname")
-            redirect = "/"
+            redirect "/"
           end
         end
       end
@@ -284,6 +284,25 @@ module Precious
         @name = name
         mustache :create
       end
+    end
+
+    get '/upload' do
+      mustache :upload
+    end
+
+    post '/upload' do
+      safename = params[:name].gsub(/.*\/(.*?)$/) {|x| $1 }.gsub(/[^A-Za-z0-9\-\_\ \.]/, ".")
+      buf = params[:file][:tempfile].read
+      wiki = Gollum::Wiki.new(settings.gollum_path, settings.wiki_options)
+      committer = Gollum::Committer.new(wiki, :name => session[:fullname])
+      fullpath = ::File.join(*[@wiki.page_file_dir, "/", safename].compact)
+      fullpath = fullpath[1..-1] if fullpath =~ /^\//
+      committer.index.add(fullpath, buf)
+      committer.after_commit do |index, sha|
+        wiki.repo.git.checkout({}, 'HEAD', '--', safename)
+      end
+      committer.commit
+      redirect "/"
     end
 
     def update_wiki_page(wiki, page, content, commit_message, name = nil, format = nil)
